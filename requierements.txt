@@ -3,5 +3,4 @@ pandas
 numpy
 scikit-learn
 catboost
-lightgbm
-xgboost
+
