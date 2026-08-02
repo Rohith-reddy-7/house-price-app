@@ -1,51 +1,38 @@
 import streamlit as st
 import pickle
 import pandas as pd
-import numpy as np
-import streamlit as st
-import pickle
-import traceback
 
+# Load model
 try:
     with open("final_model.pkl", "rb") as file:
         model = pickle.load(file)
-    st.success("Model loaded successfully!")
 except Exception as e:
-    st.error(f"Error: {e}")
-    st.code(traceback.format_exc())
+    st.error(f"Error loading model: {e}")
     st.stop()
+
 st.title("🏠 House Price Prediction App")
+st.write("Enter the house details below to predict the price.")
 
-# Show expected features (for debugging)
-st.write("Expected features:", model.feature_names_)
-
-# Input fields for features — adjust to match your model’s training columns
-st.header("Enter House Details")
-
-# Example inputs (you can add/remove based on model.feature_names_)
+# User Inputs
 lot_frontage = st.number_input("Lot Frontage", min_value=0.0, value=60.0)
 lot_area = st.number_input("Lot Area (sq ft)", min_value=500.0, value=8000.0)
-overall_quality = st.number_input("Overall Quality (1–10)", min_value=1, max_value=10, value=5)
+overall_quality = st.slider("Overall Quality", 1, 10, 5)
 year_built = st.number_input("Year Built", min_value=1800, max_value=2026, value=2000)
 gr_liv_area = st.number_input("Above Ground Living Area (sq ft)", min_value=300.0, value=1500.0)
 
-# Create DataFrame with correct column names
+# Create input DataFrame
 input_data = pd.DataFrame({
-    'LotFrontage': [lot_frontage],
-    'LotArea': [lot_area],
-    'OverallQual': [overall_quality],
-    'YearBuilt': [year_built],
-    'GrLivArea': [gr_liv_area]
+    "LotFrontage": [lot_frontage],
+    "LotArea": [lot_area],
+    "OverallQual": [overall_quality],
+    "YearBuilt": [year_built],
+    "GrLivArea": [gr_liv_area]
 })
 
-# Reorder columns to match model training order
-input_data = input_data.reindex(columns=model.feature_names_)
-
-# Predict button
+# Prediction
 if st.button("Predict Price"):
     try:
-        prediction = model.predict(input_data)
-        # If your model was trained on log prices, use np.exp() to revert
-        st.success(f"Estimated House Price: ${np.exp(prediction[0]):,.2f}")
+        prediction = model.predict(input_data)[0]
+        st.success(f"🏡 Estimated House Price: ${prediction:,.2f}")
     except Exception as e:
         st.error(f"Prediction failed: {e}")
