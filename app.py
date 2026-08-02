@@ -2,11 +2,18 @@ import streamlit as st
 import pickle
 import pandas as pd
 import numpy as np
+import streamlit as st
+import pickle
+import traceback
 
-# Load your trained model
-with open('final_model.pkl', 'rb') as file:
-    model = pickle.load(file)
-
+try:
+    with open("final_model.pkl", "rb") as file:
+        model = pickle.load(file)
+    st.success("Model loaded successfully!")
+except Exception as e:
+    st.error(f"Error: {e}")
+    st.code(traceback.format_exc())
+    st.stop()
 st.title("🏠 House Price Prediction App")
 
 # Show expected features (for debugging)
